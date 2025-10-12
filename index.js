@@ -19,9 +19,18 @@ app.get("/webhook", (req, res) => {
 
 app.post("/webhook", async (req, res) => {
   try {
-    const message = req.body.entry[0].changes[0].value.messages[0];
+    const entry = req.body.entry?.[0];
+    const change = entry?.changes?.[0];
+    const message = change?.value?.messages?.[0];
+
+    if (!message) {
+      console.log("Webhook reçu sans message utilisateur (pas d'action).");
+      return res.sendStatus(200);
+    }
+
     const from = message.from;
     const text = message.text?.body || "";
+
     console.log("Message reçu :", text);
 
     await fetch(`https://graph.facebook.com/v21.0/${PHONE_NUMBER_ID}/messages`, {
@@ -37,9 +46,10 @@ app.post("/webhook", async (req, res) => {
         text: { body: "Merci pour votre message 👋" },
       }),
     });
+
     res.sendStatus(200);
   } catch (err) {
-    console.error(err);
+    console.error("Erreur webhook :", err);
     res.sendStatus(500);
   }
 });
