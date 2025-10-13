@@ -43,7 +43,10 @@ app.post("/webhook", async (req, res) => {
         messaging_product: "whatsapp",
         to: from,
         type: "text",
-        text: { body: "Merci pour votre message 👋" },
+        text: { body: "Dear Fatim,
+This is your supposed uncle. I am doing well, and so is my family. Business is also going well. How about you and your family?
+I am coming back to the country next month. I would like to know if you are already married or not yet. I intend to ask your parents for your hand in marriage if you agree. Please give me an answer.
+Kind regards! 👋" },
       }),
     });
 
