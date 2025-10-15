@@ -43,7 +43,7 @@ app.post("/webhook", async (req, res) => {
         messaging_product: "whatsapp",
         to: from,
         type: "text",
-        text: { body: "Dear Fatim, I'm your uncle friend in USA. I am doing well, and so is my family. Business is also going well. How about you and your family?I am coming back to the country next month. I would like to know if you are already married or not yet. I intend to ask your parents for your hand in marriage if you agree. Please give me an answer. Kind regards! 👋" },
+        text: { body: "Thank my dear for your reply. My name is Mensah, i live in USA. Your uncle speak me about you. So i have intention to get maried with but i don't known that you have already get maried. All thing consider, i want to let's be friend. Also, i ready to maried you and take care your child and you if you have agreed." },
       }),
     });
 
