@@ -5,18 +5,24 @@ import fetch from "node-fetch";
 const app = express();
 app.use(bodyParser.json());
 
-const ACCESS_TOKEN = "EAFjp0OLvOmEBPn3ekz0C8ivO9PwMJP2MT7lLEuCVingV9wLGetvPZB6pVVfUfEn2ligryEIAxowkZBlBICjPb0GZCaNd9Gk5nR3eIlJL0ErpbDVZBCjG3rukSwgrkp3x9uJNYzjobSVImWCgOtYZBDsFz7xQkw8oEXJ03WVZAlFPujz6wLn7P8przyNSyLhDka6wZDZD";
-const PHONE_NUMBER_ID = "840280999166429";
+// ✅ Variables à personnaliser
+const ACCESS_TOKEN = "TON_JETON_WHATSAPP_CLOUD";
+const PHONE_NUMBER_ID = "TON_PHONE_NUMBER_ID";
+const VERIFY_TOKEN = "mon_token_de_verif"; // même que celui déclaré dans Meta Developer
 
+// 📌 Vérification du webhook (étape Meta Developer)
 app.get("/webhook", (req, res) => {
-  const VERIFY_TOKEN = "mon_token_de_verif";
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
-  if (mode && token === VERIFY_TOKEN) res.status(200).send(challenge);
-  else res.sendStatus(403);
+  if (mode && token === VERIFY_TOKEN) {
+    res.status(200).send(challenge);
+  } else {
+    res.sendStatus(403);
+  }
 });
 
+// 📩 Réception des messages clients WhatsApp
 app.post("/webhook", async (req, res) => {
   try {
     const entry = req.body.entry?.[0];
@@ -29,10 +35,27 @@ app.post("/webhook", async (req, res) => {
     }
 
     const from = message.from;
-    const text = message.text?.body || "";
+    const text = message.text?.body?.toLowerCase() || "";
 
     console.log("Message reçu :", text);
 
+    // 🧠 Réponses automatiques simples
+    let replyText = "";
+
+    if (text.includes("catalogue") || text.includes("prix") || text.includes("tarif")) {
+      replyText = "🧺 *Catalogue Pressing Yamba*\nChemise : 500 FCFA\nCostume : 1500 FCFA\nRobe : 800 FCFA\n\nSouhaitez-vous faire une commande ?";
+    } 
+    else if (text.includes("bonjour") || text.includes("salut")) {
+      replyText = "👋 Bonjour et bienvenue chez *Pressing Yamba* !\nNous proposons le lavage, le repassage et le nettoyage à sec de vos vêtements.\n\nTapez *Catalogue* pour voir nos tarifs ou *Commande* pour faire un enlèvement.";
+    } 
+    else if (text.includes("commande") || text.includes("enlev")) {
+      replyText = "🧾 Merci ! Veuillez indiquer les vêtements à traiter et leur quantité. Exemple :\n> 2 chemises, 1 costume.";
+    } 
+    else {
+      replyText = "🤖 Désolé, je n’ai pas compris votre message. Tapez *Catalogue* ou *Commande* pour continuer.";
+    }
+
+    // 🚀 Envoi de la réponse via WhatsApp Cloud API
     await fetch(`https://graph.facebook.com/v21.0/${PHONE_NUMBER_ID}/messages`, {
       method: "POST",
       headers: {
@@ -43,7 +66,7 @@ app.post("/webhook", async (req, res) => {
         messaging_product: "whatsapp",
         to: from,
         type: "text",
-        text: { body: "Thank my dear for your reply. My name is Mensah, i live in USA. Your uncle speak me about you. So i have intention to get maried with but i don't known that you have already get maried. All thing consider, i want to let's be friend. Also, i ready to maried you and take care your child and you if you have agreed." },
+        text: { body: replyText },
       }),
     });
 
@@ -54,5 +77,6 @@ app.post("/webhook", async (req, res) => {
   }
 });
 
+// 🚀 Lancement du serveur
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`✅ Serveur en ligne sur le port ${PORT}`));
+app.listen(PORT, () => console.log(`✅ Serveur Pressing Yamba en ligne sur le port ${PORT}`));
